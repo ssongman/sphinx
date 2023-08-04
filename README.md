@@ -5,22 +5,25 @@ sphinx 를 활용하여 markdown 문서를 web-doc 으로 생성, nginx containe
 
 
 
-## 1) sphinx
+# 1. sphinx
 
 
 
 
 
-### (1) sphinx container 생성
+## 1) sphinx Container 실행
 
 
 
 ```sh
 $ cd ~/song/sphinx/web-docs
 
+
+$ docker pull sphinxdoc/sphinx
+
 # quickstart
 $ docker run -d --rm --name sphinx \
-    -v /home/song/song/sphinx/web-docs/docs:/docs \
+    -v /root/song/sphinx/web-docs/docs:/docs \
     sphinxdoc/sphinx sleep 365d
     
 
@@ -28,21 +31,25 @@ $ docker run -d --rm --name sphinx \
 $ docker exec -it sphinx bash
 
 
+# 삭제시
+$ docker rm -f sphinx
 ```
 
 
 
-### (2) Sphinx project 생성
+## 2) Sphinx project 생성
 
 quickstart
 
 ```bash
 $ cd ~/song/sphinx/web-docs
 
+# container내로 진입
+$ docker exec -it sphinx bash
+
+
 # quickstart
-$ docker run -it --rm \
-    -v /home/song/song/sphinx/web-docs/docs:/docs \
-    sphinxdoc/sphinx sphinx-quickstart
+root@e59e5fa52b44:/docs$ sphinx-quickstart
 
 
 Welcome to the Sphinx 5.3.0 quickstart utility.
@@ -58,9 +65,9 @@ Either, you use a directory "_build" within the root path, or you separate
 > Separate source and build directories (y/n) [n]: n
 
 The project name will occur in several places in the built documentation.
-> Project name: song docs
-> Author name(s): ssongman
-> Project release []: v1.0
+> Project name: DevPilot Online Manual
+> Author name(s): ktds
+> Project release []: v0.5
 
 If the documents are to be written in a language other than English,
 you can select a language here by its language code. Sphinx will then
@@ -84,25 +91,15 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 
 
 
-
-
-# 확인
-
-song@songgram:~/song/sphinx/web-docs/docs$ ll
-total 36
-drwxr-xr-x 5 song song 4096 Aug  2 23:09 ./
-drwxr-xr-x 4 song song 4096 Aug  2 23:02 ../
--rw-r--r-- 1 root root  634 Aug  2 23:09 Makefile
-drwxr-xr-x 2 root root 4096 Aug  2 23:09 _build/
-drwxr-xr-x 2 root root 4096 Aug  2 23:09 _static/
-drwxr-xr-x 2 root root 4096 Aug  2 23:09 _templates/
--rw-r--r-- 1 root root  969 Aug  2 23:09 conf.py
--rw-r--r-- 1 root root  443 Aug  2 23:09 index.rst
--rw-r--r-- 1 root root  800 Aug  2 23:09 make.bat
-
-
-
-
+$ ls -ltr /docs
+total 28
+drwxr-xr-x 2 root root 4096 Aug  3 02:05 _templates
+drwxr-xr-x 2 root root 4096 Aug  3 02:05 _static
+drwxr-xr-x 2 root root 4096 Aug  3 02:05 _build
+-rw-r--r-- 1 root root  800 Aug  3 02:05 make.bat
+-rw-r--r-- 1 root root  482 Aug  3 02:05 index.rst
+-rw-r--r-- 1 root root  974 Aug  3 02:05 conf.py
+-rw-r--r-- 1 root root  634 Aug  3 02:05 Makefile
 
 ```
 
@@ -110,14 +107,38 @@ drwxr-xr-x 2 root root 4096 Aug  2 23:09 _templates/
 
 
 
-### (3) recommonmark 설치
+## 3) recommonmark 설치
 
 markdown 사용하기 위해 recommonmark python 패키지 설치한다.
 
-python-pip 패키지가 설치가 안되어 있을경우 설치를 먼저 진행합니다. 
+python-pip 패키지가 설치가 안되어 있을경우 설치를 먼저 진행한다.
 
 ```sh
+# pip 가 없을때는 
 $ sudo apt install python-pip
+
+```
+
+
+
+###  (1) python library install
+
+사내망에서 python nexus repo 참조하도록 설정
+
+```
+$ mkdir -p ~/.config/pip
+$ cat > ~/.config/pip/pip.conf
+[global]
+trusted-host=10.217.59.89
+index=http://10.217.59.89/nexus3/repository/pypi-group/pypi
+index-url=http://10.217.59.89/nexus3/repository/pypi-group/simple
+```
+
+
+
+### (2) recommonmark install
+
+```sh
 
 $ pip install recommonmark 
 
@@ -132,11 +153,29 @@ WARNING: Running pip as the 'root' user can result in broken permissions and con
 
 
 
-#### conf.py 파일을 수정
 
-```python
+
+### (3) conf.py 파일을 수정
+
+* vi 가 없으면
+
+```sh
+$ apt-get update
+
+$ apt-get install vim
+```
+
+
+
+* conf.py 파일 수정
+
+```sh
+$ vi conf.py
+
+...
 # for Sphinx-1.4 or newer
 extensions = ['recommonmark']
+...
 
 ```
 
@@ -144,22 +183,38 @@ extensions = ['recommonmark']
 
 
 
-### (4) 테마
+
+
+## 4) 테마 선택 및 적용
 
 
 
-#### rtd(read the doc)
+참고링크 : https://sphinx-themes.org/
+
+### (1) alabaster
+
+default 값이며 가장 좋지 않은듯 하다.
+
+title 부분이 같이 스크롤된다.
+
+
+
+
+
+### (2) rtd(read the doc) - ( appdu )
 
 ```sh
 $ pip install sphinx_rtd_theme
 
+Installing collected packages: soupsieve, sphinx, beautifulsoup4, sphinx-basic-ng, furo
+  Attempting uninstall: sphinx
+    Found existing installation: Sphinx 5.3.0
+    Uninstalling Sphinx-5.3.0:
+      Successfully uninstalled Sphinx-5.3.0
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+sphinx-rtd-theme 1.2.2 requires sphinx<7,>=1.6, but you have sphinx 7.1.2 which is incompatible.
+Successfully installed beautifulsoup4-4.12.2 furo-2023.7.26 soupsieve-2.4.1 sphinx-7.1.2 sphinx-basic-ng-1.0.0b2
 
-Successfully uninstalled docutils-0.19
-Successfully installed docutils-0.18.1 sphinx_rtd_theme-1.2.2 sphinxcontrib-jquery-4.1
-WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
-
-[notice] A new release of pip available: 22.3 -> 23.2.1
-[notice] To update, run: pip install --upgrade pip
 
 
 ```
@@ -206,7 +261,7 @@ The HTML pages are in _build/html.
 
 
 
-#### furo
+### (3) furo
 
 이게 가장 좋아 보이네...
 
@@ -229,13 +284,21 @@ $ make html
 
 
 
-#### sphinx-book-theme
+### (4) sphinx-book-theme ( arsenal )
 
-좋아 보이는데 적용 되지 않음
+좋아 보임
 
 ```sh
 # 1) 설치
 $ pip install sphinx-book-theme
+
+Installing collected packages: typing-extensions, accessible-pygments, sphinx, pydata-sphinx-theme, sphinx-book-theme
+  Attempting uninstall: sphinx
+    Found existing installation: Sphinx 7.1.2
+    Uninstalling Sphinx-7.1.2:
+      Successfully uninstalled Sphinx-7.1.2
+Successfully installed accessible-pygments-0.0.4 pydata-sphinx-theme-0.13.3 sphinx-6.2.1 sphinx-book-theme-1.0.1 typing-extensions-4.7.1
+
 
 
 # 2) 테마 적용 conf.py
@@ -250,13 +313,16 @@ $ make html
 
 
 
-#### piccolo_theme
+### (5) piccolo_theme
 
 왓구는 좋은데 너무 정적임
 
 ```sh
 # 1) 설치
 $ pip install piccolo-theme
+Installing collected packages: piccolo-theme
+Successfully installed piccolo-theme-0.16.1
+
 
 
 # 2) 테마 적용 conf.py
@@ -273,7 +339,61 @@ $ make html
 
 
 
-### (5) md 파일 생성
+
+
+## 5) Arsenal 사례
+
+### (1) sphinx build 사례
+
+```groovy
+
+            stage('Sphinx Build') {
+                container('sphinx') {
+                    print "start sphinx build"
+                    sh "git clone http://git.cz-dev.container.kt.co.kr/arsenal-suite/arsenal-docs/sphinxdoc.git"
+                    sh "sphinx-build -b html ./sphinxdoc/source ./html"
+                    sh "rm -rf sphinxdoc"
+                }
+            }
+
+```
+
+
+
+
+
+
+
+### index.rst
+
+```
+.. arsenal_guide documentation master file, created by
+   sphinx-quickstart on Fri Apr 30 16:46:48 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+DOverse 가이드
+====================
+
+.. note::
+   업데이트 중
+
+.. toctree::
+   :maxdepth: 6
+   :caption: 목차
+   :name: mastertoc
+   :numbered:
+   :glob:
+
+   guide/*
+   
+```
+
+
+
+
+
+## 5) md 파일 생성
 
 
 
@@ -289,8 +409,6 @@ $ make html
 
 
 
-
-
 ```
 <!-- file_2.md -->
 
@@ -299,26 +417,6 @@ $ make html
 [My Subtitle]: <path/to/file_1:My Subtitle>
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -354,7 +452,7 @@ Build PDF document::
 $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx-latexpdf make latexpdf
 ```
 
-### (6) Tips
+## 6) Tips
 
 If you would like to install dependencies, use `sphinxdoc/sphinx` as a base image::
 
@@ -371,11 +469,11 @@ RUN pip3 install -r requirements.tx
 
 
 
-## 2) nginx 
+# 2. nginx 
 
 
 
-### (1) conf file 생성
+## 1) conf file 생성
 
 ```sh
 # conf file 생성
@@ -401,27 +499,22 @@ server {
 
 
 
-### (2) docs directory 생성
+## 2) nginx Container 실행
 
 ```sh
-# docs directory 생성
-$ cd ~/song/sphinx/docs
-$ mkdir docs
 
-```
+$ docker pull nginx:1.25
 
 
 
-### (3) nginx 실행
-
-```sh
 # nginx 실행
-$ docker run -d --name song-docs -p 8081:80 \
-    -v /home/song/song/sphinx/web-docs/nginx/conf:/etc/nginx/conf.d \
-    -v /home/song/song/sphinx/web-docs/docs/_build/html:/code \
+$ docker run -d --name song-docs -p 8082:80 \
+    -v /root/song/sphinx/web-docs/nginx/conf:/etc/nginx/conf.d \
+    -v /root/song/sphinx/web-docs/docs/_build/html:/code \
     nginx:1.25
 
 
+# 삭제
 $ docker rm -f song-docs
 
 ```
