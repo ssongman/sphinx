@@ -202,11 +202,35 @@ extensions = ['recommonmark']
 
 
 
+### (4) requirements
+
+
+
+docs/requirements.txt
+
+```sh
+myst-parser
+sphinx-copybutton
+sphinx-design
+sphinx-inline-tabs
+sphinx-tabs
+
+```
+
+
+
+
+
 
 
 
 
 ## 4) 테마 선택 및 적용
+
+
+
+alabaster가 기본 테마 이름인데 이를 다른 이름으로 바꿀 수 있다. 별 다른 조치 없이 테마 이름만 변경해서 적용할 수 있는 것들을 builtin theme이라고 한다.
+
 
 
 
@@ -401,61 +425,7 @@ $ make html
 
 
 
-
-
-## 5) Arsenal 사례
-
-### (1) sphinx build 사례
-
-```groovy
-
-            stage('Sphinx Build') {
-                container('sphinx') {
-                    print "start sphinx build"
-                    sh "git clone http://git.cz-dev.container.kt.co.kr/arsenal-suite/arsenal-docs/sphinxdoc.git"
-                    sh "sphinx-build -b html ./sphinxdoc/source ./html"
-                    sh "rm -rf sphinxdoc"
-                }
-            }
-
-```
-
-
-
-
-
-
-
-### index.rst
-
-```
-.. arsenal_guide documentation master file, created by
-   sphinx-quickstart on Fri Apr 30 16:46:48 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-DOverse 가이드
-====================
-
-.. note::
-   업데이트 중
-
-.. toctree::
-   :maxdepth: 6
-   :caption: 목차
-   :name: mastertoc
-   :numbered:
-   :glob:
-
-   guide/*
-   
-```
-
-
-
-
-
-## 6) Build
+## 5) Build
 
 
 
@@ -527,13 +497,13 @@ RUN pip3 install -r requirements.tx
 
 
 
-## 7) index.rst
+## 6) index.rst
 
 RST(ReStructuredText) 파일은 주로 python 프로그래밍 커뮤니티에서 사용되는 기술문서파일 형식이다.
 
 
 
-### sample
+### (1) sample
 
 #### sample1
 
@@ -663,7 +633,7 @@ def add(x, y):
 
 
 
-### 수정
+### (2) 수정
 
 
 
@@ -995,7 +965,7 @@ var READTHEDOCS_DATA = {
 
 
 
-
+재빌드 후 nginx 재기동
 
 ```sh
 
@@ -1014,6 +984,203 @@ $ docker rm -f song-docs
     nginx:1.25
 
 
+```
+
+
+
+
+
+
+
+
+
+# 4. Arsenal 사례
+
+## 1) sphinx jenkins pipeline
+
+```groovy
+            stage('Sphinx Build') {
+                container('sphinx') {
+                    print "start sphinx build"
+                    sh "git clone http://git.cz-dev.container.kt.co.kr/arsenal-suite/arsenal-docs/sphinxdoc.git"
+                    sh "sphinx-build -b html ./sphinxdoc/source ./html"
+                    sh "rm -rf sphinxdoc"
+                }
+            }
+
+```
+
+
+
+
+
+
+
+## 2) index.rst
+
+```
+.. arsenal_guide documentation master file, created by
+   sphinx-quickstart on Fri Apr 30 16:46:48 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+DOverse 가이드
+====================
+
+.. note::
+   업데이트 중
+
+.. toctree::
+   :maxdepth: 6
+   :caption: 목차
+   :name: mastertoc
+   :numbered:
+   :glob:
+
+   guide/*
+   
+```
+
+
+
+
+
+
+
+
+
+# 5. PDF 문서 생
+
+pdf 변환을 위해서는 반드시 Latex 설치가 필요하다.
+
+latex 설치
+
+
+
+## 1) 대상 확인
+
+```
+
+
+latexmk
+texlive-latex-recommended
+texlive-latex-extra
+texlive-xetex
+fonts-freefont-otf
+texlive-fonts-recommended
+texlive-lang-greek
+tex-gyre
+
+```
+
+
+
+## 2) apt install
+
+```sh
+
+$ apt update
+
+# install packages:
+$ apt install fonts-freefont-otf latexmk python3-venv \
+texlive-fonts-recommended texlive-latex-recommended \
+texlive-latex-extra texlive-lang-greek \
+tex-gyre texlive-xetex
+
+```
+
+
+
+
+
+## 3) conf.py 수정
+
+
+
+PDF 문서를 생성하기 위해서는 각 프로젝트의 source/conf.py 파일을 수정해야 한다.
+
+해당 파일을 열어 다음과 같은 항목을 추가 한다.
+
+
+
+conf.py 수정
+
+```python
+
+...
+html_theme = 'press'
+...
+html_static_path = ['_static']
+...
+
+
+# -- Options for LaTeX output ------------------------------------------------
+latex_engine = 'xelatex'
+latex_elements = {
+    # The paper size ('letterpaper' or 'a4paper').
+    #
+    'papersize': 'a4paper',
+ 
+    # The font size ('10pt', '11pt' or '12pt').
+    #
+    'pointsize': '10pt',
+ 
+    # Additional stuff for the LaTeX preamble.
+    #
+    'preamble': '',
+ 
+    'babel': ' ',
+ 
+    # Latex figure (float) alignment
+    #
+    'figure_align': 'htbp',
+ 
+ 
+    # kotex config
+    'figure_align': 'htbp',
+ 
+    'fontpkg': r'''
+\usepackage{kotex}
+ 
+% 영문 폰트 설정
+\setmainfont[Mapping=tex-text]{나눔고딕}
+\setsansfont[Mapping=tex-text]{나눔명조}
+\setmonofont{D2Coding}
+ 
+% 한글 폰트 설정
+\setmainhangulfont[Mapping=tex-text]{나눔고딕}
+\setsanshangulfont[Mapping=tex-text]{나눔명조}
+\setmonohangulfont{D2Coding}
+ 
+''',
+}
+
+```
+
+
+
+
+
+## 4) build
+
+
+
+```sh
+
+
+$ make latexpdf
+
+
+
+# 
+$ make latexpdf LATEXMKOPTS="-silent"
+
+
+$ ll /docs/_build/latex/songdocs.pdf
+-rw-r--r-- 1 root root 8365 Aug  7 15:39 songdocs.pdf
+
+
+
 
 
 ```
@@ -1024,14 +1191,62 @@ $ docker rm -f song-docs
 
 
 
-docs//requirements.txt
+```sh
+
+# docker container 밖에서
+
+$ ll /docs/_build/latex/songdocs.pdf
+
+
+/home/song/song/sphinx/pdf-output
+
+docker cp song-docs:/docs/_build/latex/songdocs.pdf /home/song/song/sphinx/pdf-output
+
+
+
+
+
+```
+
+
+
+
+
+## 9) trouble shooting
+
+
+
+### kotex.sty file 없음
+
+현상
 
 ```sh
-myst-parser
-sphinx-copybutton
-sphinx-design
-sphinx-inline-tabs
-sphinx-tabs
+
+$ make latexpdf
+...
+! LaTeX Error: File `kotex.sty' not found.
+
+```
+
+원인 및 조치
+
+```sh
+
+
+LINUX환경에서 kotex를 못찾는 문제입니다. 
+> sudo yum install texlive-* 로 설치했구요 (texlive-full이 안되더라구요) 
+overleaf에서는 컴파일 잘 되는데 리눅스 환경에서 kotex설치가 안되는 상황입니다.
+
+
+
+
+# TeXLive 2013 설치
+$ apt install texlive-* 
+
+
+# 조치후 build
+
+$ make latexpdf
 
 ```
 
