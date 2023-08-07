@@ -45,7 +45,7 @@ $ docker rm -f sphinx
 
 ## 2) Sphinx project 생성
 
-quickstart
+### (1) quickstart
 
 ```bash
 $ cd ~/song/sphinx/web-docs
@@ -514,6 +514,14 @@ RUN pip3 install -r requirements.tx
 
 ## 7) index.rst
 
+RST(ReStructuredText) 파일은 주로 python 프로그래밍 커뮤니티에서 사용되는 기술문서파일 형식이다.
+
+
+
+### sample
+
+#### sample1
+
 ```rst
 .. DevPilot Online Manual documentation master file, created by
    sphinx-quickstart on Thu Aug  3 02:05:52 2023.
@@ -539,17 +547,115 @@ DevPilot Online Manual
 
 
 
+#### sample2
 
+```rst
+제목
+====
+
+이 문서는 Sphinx Furo 테마를 이용하여 생성되었습니다.
+
+코드 블록 예제
+------------
+
+아래는 Python 코드 블록의 예제입니다.
+
+.. code-block:: python
+
+    def greet(name):
+        """인사하는 함수"""
+        return f"안녕하세요, {name}!"
+
+    print(greet("홍길동"))
+
+리스트
+------
+
+- 항목 1
+- 항목 2
+- 항목 3
+
+링크
+----
+
+`Furo 테마 공식 홈페이지 <https://pradyunsg.me/furo/>`_
+```
+
+
+
+
+
+#### sample3
+
+```rst
+Sample reStructuredText Document
+===============================
+
+This is a sample reStructuredText (rst) document demonstrating various
+elements you can use in rst.
+
+Section Title
+-------------
+
+This is a subsection under the main section. You can use different levels
+of section titles using equal signs or dashes.
+
+Lists
+-----
+
+- Bullet point item 1
+- Bullet point item 2
+- Bullet point item 3
+
+1. Numbered item 1
+2. Numbered item 2
+3. Numbered item 3
+
+Code Block
+----------
+
+You can display code blocks like this:
+
+.. code-block:: python
+
+   def greet(name):
+       return f"Hello, {name}!"
+
+   print(greet("John"))
+
+Links
+-----
+
+You can create links to other websites or documents:
+
+`Sphinx Official Website <https://www.sphinx-doc.org/>`_
+
+Inline Markup
+-------------
+
+You can add emphasis, strong text, literals, and more:
+
+*This text is in italics.*
+**This text is in bold.**
+``Monospace text.``
+``Literal text.``
+​````python
+def add(x, y):
+    return x + y
+```
+
+
+
+
+
+### 수정
 
 
 
 ```sh
 
-
 # container내로 진입
 $ docker exec -it sphinx bash
-
-
 
  
 ```
@@ -617,6 +723,62 @@ $ docker run -d --name song-docs -p 8082:80 \
 $ docker rm -f song-docs
 
 ```
+
+
+
+
+
+
+
+# 3. DevPilot
+
+
+
+## 1) MD File 생성
+
+
+
+```sh
+$ cd ~/song/ssphinx/web-docs
+
+# container내로 진입
+$ docker exec -it sphinx bash
+
+
+
+
+# 
+$ mkdir -p /song
+
+$ cd /song
+
+# git clone -b <branchname> <remote-repo-url>
+$ git clone http://gitlab.dev.icis.kt.co.kr/sa/arsenal_docs.git
+
+
+# root / n******
+
+
+$ ll ./arsenal_docs
+
+-rw-r--r-- 1 root root  764 Aug  7 04:13  make.bat
+-rw-r--r-- 1 root root  638 Aug  7 04:13  Makefile
+-rw-r--r-- 1 root root 3110 Aug  7 04:13 '스핑크스 설치.md'
+drwxr-xr-x 3 root root 4096 Aug  7 04:13  source
+
+
+$ cp /song/arsenal_docs/source /docs
+
+
+
+
+
+
+
+
+```
+
+
 
 
 
