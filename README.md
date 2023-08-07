@@ -9,6 +9,12 @@ sphinx 를 활용하여 markdown 문서를 web-doc 으로 생성, nginx containe
 
 
 
+sphinx 는 소스파일을 읽어서 output(html 등) 을 만들어주는 tool 이다.
+
+그러므로 이렇게 만들어진 html 을 읽을 수 있는 별도의 WAS (Nginx 등) 가 필요하다.
+
+아래와 같이 sphinx Container 를 실행시켜 놓은 후 Build 환경을 만들어 보자.
+
 
 
 ## 1) sphinx Container 실행
@@ -282,6 +288,47 @@ $ make html
 
 
 
+#### 추가 설정
+
+참고 : https://pradyunsg.me/furo/customisation/
+
+```python
+
+
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "red",
+        "color-brand-content": "#CC3333",
+        "color-admonition-background": "orange",
+    },
+}
+
+# sidebar
+# document 의 Sidebar 에서 프로젝트의 이름을 보여줄지 제어한다.
+# logo 를 보여주기를 원할때 유용하다. 기본값은 false 이다.
+html_theme_options = {
+    "sidebar_hide_name": True,
+}
+
+
+
+# light_css_variables
+# 사용자가 원하는 색상으로 변경 가능
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#7C4DFF",
+        "color-brand-content": "#7C4DFF",
+    },
+}
+
+```
+
+
+
+
+
+
+
 
 
 ### (4) sphinx-book-theme ( arsenal )
@@ -393,9 +440,11 @@ DOverse 가이드
 
 
 
-## 5) md 파일 생성
+## 6) Build
 
 
+
+### md 파일 적용
 
 ```
 <!-- path/to/file_1.md -->
@@ -404,8 +453,6 @@ DOverse 가이드
 
 ## My Subtitle
 ```
-
-
 
 
 
@@ -422,15 +469,7 @@ DOverse 가이드
 
 
 
-
-
-
-
-
-
-
-
-
+### Build
 
 
 
@@ -452,7 +491,11 @@ Build PDF document::
 $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx-latexpdf make latexpdf
 ```
 
-## 6) Tips
+
+
+
+
+### Tips: Dockerfile
 
 If you would like to install dependencies, use `sphinxdoc/sphinx` as a base image::
 
@@ -464,6 +507,62 @@ WORKDIR /docs
 ADD requirements.txt /docs
 RUN pip3 install -r requirements.tx
 ```
+
+
+
+
+
+## 7) index.rst
+
+```rst
+.. DevPilot Online Manual documentation master file, created by
+   sphinx-quickstart on Thu Aug  3 02:05:52 2023.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+DevPilot Online Manual
+==================================================
+
+.. note::
+   updating...
+
+.. toctree::
+   :maxdepth: 6
+   :caption: 목차
+   :name: mastertoc
+   :numbered:
+   :glob:
+
+   guide/*
+
+```
+
+
+
+
+
+
+
+```sh
+
+
+# container내로 진입
+$ docker exec -it sphinx bash
+
+
+
+ 
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
